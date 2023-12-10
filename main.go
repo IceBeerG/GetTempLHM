@@ -91,16 +91,19 @@ func main() {
 		return
 	}
 
+	var cpuPackageValue, gpuCoreValue, gpuCoreHotSpot string
 	// Получить значение поля "Value" для CPU package
-	cpuPackageValue := cpuData.Children[0].Children[1].Children[3].Children[4].Value
-	fmt.Println("Значение поля 'Value' для CPU package:", cpuPackageValue)
+	// for i; v :=
+
+	cpuPackageValue = cpuData.Children[0].Children[1].Children[3].Children[0].Value
+	fmt.Println("Значение поля 'Value' для CPU:", cpuPackageValue)
 
 	// Получить значение поля "Value" для GPU core
-	gpuCoreValue := cpuData.Children[0].Children[2].Children[2].Children[0].Value
+	gpuCoreValue = cpuData.Children[0].Children[3].Children[2].Children[0].Value
 	fmt.Println("Значение поля 'Value' для GPU core:", gpuCoreValue)
 
 	// Получить значение поля "Value" для GPU Hot Spot
-	gpuCoreHotSpot := cpuData.Children[0].Children[2].Children[2].Children[1].Value
+	gpuCoreHotSpot = cpuData.Children[0].Children[3].Children[2].Children[1].Value
 	fmt.Println("Значение поля 'Value' для GPU Hot Spot:", gpuCoreHotSpot)
 	var a string
 	fmt.Scan(&a)
