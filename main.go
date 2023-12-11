@@ -7,104 +7,100 @@ import (
 	"net/http"
 )
 
-type CPUData struct {
-	ID       int       `json:"id"`
-	Text     string    `json:"Text"`
-	Min      string    `json:"Min"`
-	Value    string    `json:"Value"`
-	Max      string    `json:"Max"`
-	ImageURL string    `json:"ImageURL"`
-	Children []GPUCore `json:"Children"`
-}
-
-type GPUCore struct {
-	ID       int         `json:"id"`
-	Text     string      `json:"Text"`
-	Min      string      `json:"Min"`
-	Value    string      `json:"Value"`
-	Max      string      `json:"Max"`
-	ImageURL string      `json:"ImageURL"`
-	Children []Processor `json:"Children"`
-}
-
-type Processor struct {
-	ID       int           `json:"id"`
-	Text     string        `json:"Text"`
-	Min      string        `json:"Min"`
-	Value    string        `json:"Value"`
-	Max      string        `json:"Max"`
-	ImageURL string        `json:"ImageURL"`
-	Children []Temperature `json:"Children"`
-}
-
-type Temperature struct {
-	ID       int           `json:"id"`
-	Text     string        `json:"Text"`
-	Min      string        `json:"Min"`
-	Value    string        `json:"Value"`
-	Max      string        `json:"Max"`
-	SensorID string        `json:"SensorId"`
-	Type     string        `json:"Type"`
-	ImageURL string        `json:"ImageURL"`
-	Children []Temperature `json:"Children"`
+type Node struct {
+	ID       int    `json:"id"`
+	Text     string `json:"Text"`
+	Min      string `json:"Min"`
+	Value    string `json:"Value"`
+	Max      string `json:"Max"`
+	ImageURL string `json:"ImageURL"`
+	Children []Node `json:"Children"`
 }
 
 func main() {
-	// Создаем HTTP-клиента
-	client := http.Client{}
-
-	// Создаем GET-запрос
-	req, err := http.NewRequest("GET", "http://localhost:8085/data.json", nil)
+	url := "http://localhost:8085/data.json"
+	resp, err := http.Get(url)
 	if err != nil {
-		fmt.Println("Ошибка при создании запроса:", err)
-		return
-	}
-
-	// Отправляем запрос и получаем ответ
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Println("Ошибка при отправке запроса:", err)
-		return
+		panic(err)
 	}
 	defer resp.Body.Close()
 
-	// Проверяем статус ответа
-	if resp.StatusCode != http.StatusOK {
-		fmt.Println("Ошибка:", resp.Status)
-		return
-	}
-
-	// Читаем тело ответа в байтовый массив
-	jsonData, err := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("Ошибка при чтении тела ответа:", err)
-		return
+		panic(err)
+	}
+	tempCPU1, tempCPU2 := getTemp(body, "cpu")
+	tempGPU1, tempGPU2 := getTemp(body, "gpu")
+	if tempCPU1 != "" {
+		fmt.Println("Температура CPU = ", tempCPU1)
+	} else if tempCPU2 != "" {
+		fmt.Println("Температура CPU = ", tempCPU2)
 	}
 
-	// Создаем структуру для разбора JSON
-	var cpuData CPUData // Замените YourDataType на свою структуру данных
-
-	// Разбираем JSON
-	err = json.Unmarshal(jsonData, &cpuData)
-	if err != nil {
-		fmt.Println("Ошибка при разборе JSON:", err)
-		return
+	if tempGPU1 != "" {
+		fmt.Println("Температура GPU = ", tempGPU1)
+	}
+	if tempGPU2 != "" {
+		fmt.Println("Температура HotSpot = ", tempGPU2)
 	}
 
-	var cpuPackageValue, gpuCoreValue, gpuCoreHotSpot string
-	// Получить значение поля "Value" для CPU package
-	// for i; v :=
-
-	cpuPackageValue = cpuData.Children[0].Children[1].Children[3].Children[0].Value
-	fmt.Println("Значение поля 'Value' для CPU:", cpuPackageValue)
-
-	// Получить значение поля "Value" для GPU core
-	gpuCoreValue = cpuData.Children[0].Children[3].Children[2].Children[0].Value
-	fmt.Println("Значение поля 'Value' для GPU core:", gpuCoreValue)
-
-	// Получить значение поля "Value" для GPU Hot Spot
-	gpuCoreHotSpot = cpuData.Children[0].Children[3].Children[2].Children[1].Value
-	fmt.Println("Значение поля 'Value' для GPU Hot Spot:", gpuCoreHotSpot)
 	var a string
+	fmt.Println("ожидание ввода")
 	fmt.Scan(&a)
+}
+
+func getTemp(body []byte, xpu string) (value1, value2 string) {
+
+	var root Node
+	var text1, text2, text3 string
+	err := json.Unmarshal(body, &root)
+	if err != nil {
+		panic(err)
+	}
+
+	value1, value2 = "", ""
+
+	if xpu == "cpu" {
+		text1 = "images_icon/cpu.png"
+		text2 = "Core (Tctl/Tdie)"
+		text3 = "CPU Package"
+	} else if xpu == "gpu" {
+		text1 = "images_icon/nvidia.png"
+		text2 = "GPU Core"
+		text3 = "GPU Hot Spot"
+	}
+
+	// Перебор первого уровня
+	for _, child := range root.Children {
+		// Перебор второго уровня
+		for _, subChild := range child.Children {
+			// fmt.Println("child.Children - ", subChild.ImageURL)
+			if subChild.ImageURL == text1 {
+				// Перебор третьего уровня
+				for _, subSubChild := range subChild.Children {
+					// fmt.Println("subSubChild.Children - ", subSubChild.ImageURL)
+
+					if subSubChild.Text == "Temperatures" {
+
+						// Перебор четвертого уровня
+						for _, subSubSubChild := range subSubChild.Children {
+							// fmt.Println("subSubSubChild.Text - ", subSubSubChild.Text)
+
+							if subSubSubChild.Text == text2 {
+								// fmt.Println("Значение поля Value:", subSubSubChild.Value)
+								value1 = subSubSubChild.Value
+								// return value1
+							}
+							if subSubSubChild.Text == text3 {
+								// fmt.Println("Значение поля Value:", subSubSubChild.Value)
+								value2 = subSubSubChild.Value
+								// return value2
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return value1, value2
 }
