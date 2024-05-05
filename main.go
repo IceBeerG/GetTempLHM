@@ -30,43 +30,40 @@ func cpuTemp() (value int) {
 	h := lhminfo{"images_icon/cpu.png", "Temperatures", "Core (Tctl/Tdie)"}
 	value1 := getValueLHM(h)
 	if value1 != "-1" {
-		valueInt, err := takeInt(value1)
+		value, err := takeInt(value1)
 		if err != nil {
 			fmt.Println("Ошибка конвертирования. ", err)
 			return 0
 		}
-		value = valueInt
+		return value
 	} else {
 		h.level3 = "CPU Package"
-		valueInt, err := takeInt(getValueLHM(h))
+		value, err := takeInt(getValueLHM(h))
 		if err != nil {
 			fmt.Println("Ошибка конвертирования. ", err)
 			return 0
 		}
-		value = valueInt
+		return value
 	}
-	return value
 }
 
 func gpuCoreTemp() (value int) {
 	h := lhminfo{"images_icon/nvidia.png", "Temperatures", "GPU Core"}
-	valueInt, err := takeInt(getValueLHM(h))
+	value, err := takeInt(getValueLHM(h))
 	if err != nil {
 		fmt.Println("Ошибка конвертирования. ", err)
 		return 0
 	}
-	value = valueInt
 	return
 }
 
 func gpuHsTemp() (value int) {
 	h := lhminfo{"images_icon/nvidia.png", "Temperatures", "GPU Hot Spot"}
-	valueInt, err := takeInt(getValueLHM(h))
+	value, err := takeInt(getValueLHM(h))
 	if err != nil {
 		fmt.Println("Ошибка конвертирования. ", err)
 		return 0
 	}
-	value = valueInt
 	return
 }
 
@@ -74,44 +71,42 @@ func gpuFan() (value int) {
 	h := lhminfo{"images_icon/nvidia.png", "Fans", "GPU Fan 1"}
 	value1 := getValueLHM(h)
 	if value1 != "-1" {
-		valueInt, err := takeInt(value1)
+		value, err := takeInt(value1)
 		if err != nil {
 			fmt.Println("Ошибка конвертирования. ", err)
 			return 0
 		}
-		value = valueInt
+		return value
 	} else {
 		h.level3 = "GPU Fan"
-		valueInt, err := takeInt(getValueLHM(h))
+		value, err := takeInt(getValueLHM(h))
 		if err != nil {
 			fmt.Println("Ошибка конвертирования. ", err)
 			return 0
 		}
-		value = valueInt
+		return value
 	}
-	return value
 }
 
 func gpuFanPercent() (value int) {
 	h := lhminfo{"images_icon/nvidia.png", "Controls", "GPU Fan 1"}
 	value1 := getValueLHM(h)
 	if value1 != "-1" {
-		valueInt, err := takeInt(value1)
+		value, err := takeInt(value1)
 		if err != nil {
 			fmt.Println("Ошибка конвертирования. ", err)
 			return 0
 		}
-		value = valueInt
+		return value
 	} else {
 		h.level3 = "GPU Fan"
-		valueInt, err := takeInt(getValueLHM(h))
+		value, err := takeInt(getValueLHM(h))
 		if err != nil {
 			fmt.Println("Ошибка конвертирования. ", err)
 			return 0
 		}
-		value = valueInt
+		return value
 	}
-	return value
 }
 
 func gpuFan2() (value int) {
